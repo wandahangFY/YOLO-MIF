@@ -1,0 +1,5 @@
+train: D:/wan/BaiduNetdiskDownload/aquarium_pretrain/train/images
+val: D:/wan/BaiduNetdiskDownload/aquarium_pretrain/valid/images
+
+nc: 7
+names: ['fish', 'jellyfish', 'penguin', 'puffin', 'shark', 'starfish', 'stingray']

@@ -1,0 +1,55 @@
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+
+# Parameters
+nc: 80  # number of classes
+scales: # model compound scaling constants, i.e. 'model=yolov5n.yaml' will call yolov5.yaml with scale 'n'
+  # [depth, width, max_channels]
+  n: [0.33, 0.25, 1024]
+  s: [0.33, 0.50, 1024]
+  m: [0.67, 0.75, 1024]
+  l: [1.00, 1.00, 1024]
+  x: [1.33, 1.25, 1024]
+fusion_mode: bifpn
+node_mode: C3
+head_channel: 256
+
+# 0-P1/2
+# 1-P2/4
+# 2-P3/8
+# 3-P4/16
+# 4-P5/32
+
+# YOLOv5 v6.0 backbone
+backbone:
+  # [from, number, module, args]
+  [[-1, 1, fasternet_t0, []], # 4
+   [-1, 1, SPPF, [1024, 5]],  # 5
+  ]
+
+# YOLOv5 v6.0 head
+head:
+  - [2, 1, Conv, [head_channel]]  # 6-P3/8
+  - [3, 1, Conv, [head_channel]]  # 7-P4/16
+  - [5, 1, Conv, [head_channel]]  # 8-P5/32
+
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']] # 9 P5->P4
+  - [[-1, 7], 1, Fusion, [fusion_mode]] # 10
+  - [-1, 3, node_mode, [head_channel]] # 11-P4/16
+  
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']] # 12 P4->P3
+  - [[-1, 6], 1, Fusion, [fusion_mode]] # 13
+  - [-1, 3, node_mode, [head_channel]] # 14-P3/8
+
+  - [1, 1, Conv, [head_channel, 3, 2]] # 15 P2->P3
+  - [[-1, 6, 14], 1, Fusion, [fusion_mode]] # 16
+  - [-1, 3, node_mode, [head_channel]] # 17-P3/8
+
+  - [-1, 1, Conv, [head_channel, 3, 2]] # 18 P3->P4
+  - [[-1, 7, 11], 1, Fusion, [fusion_mode]] # 19
+  - [-1, 3, node_mode, [head_channel]] # 20-P4/16
+
+  - [-1, 1, Conv, [head_channel, 3, 2]] # 21 P4->P5
+  - [[-1, 8], 1, Fusion, [fusion_mode]] # 22
+  - [-1, 3, node_mode, [head_channel]] # 23-P5/32
+
+  - [[17, 20, 23], 1, Detect, [nc]]  # Detect(P3, P4, P5)

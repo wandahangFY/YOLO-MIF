@@ -1,0 +1,16 @@
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# COCO 2017 dataset http://cocodataset.org by Microsoft
+# Example usage: python train.py --data coco.yaml
+# parent
+# ├── yolov5
+# └── datasets
+#     └── coco  ← downloads here
+
+
+train:  D:/wan/BaiduNetdiskDownload/FLIR_ADAS/train_16.txt
+val:  D:/wan/BaiduNetdiskDownload/FLIR_ADAS/test_16.txt
+
+# Classes
+nc: 16  # number of classes
+names: ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'train', 'truck', 'traffic light', 'fire hydrant', 'stop sign', 'dog', 'horse', 'skateboard', 'refrigerator', 'clock', 'hair drier']  # class names
+

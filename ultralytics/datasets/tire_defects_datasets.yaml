@@ -1,0 +1,16 @@
+#————————上海大学网络化控制中心————————（引用请注明来源）
+# made by zhangzhen
+
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: D:/wan/DownLoad/tire_defects_datasets/tire_defects_datasets  # dataset root dir
+train: train/images  # train images (relative to 'path') 128 images
+val: valid/images  # val images (relative to 'path') 128 images
+#test:  test/images # test images (optional)
+
+nc: 4
+# Classes
+names:
+  0: 2#-open
+  1: cords_defects
+  2: impurity
+  3: belt_cuobian
