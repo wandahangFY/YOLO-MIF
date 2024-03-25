@@ -158,6 +158,7 @@ parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'Si
 [//]: # (https://doi.org/10.1016/j.eswa.2023.120355.)
 ## 参考链接
 - [整体框架使用代码：YOLOv8](https://github.com/ultralytics/ultralytics)
+- [重参数化参考丁霄汉代码：DiverseBranchBlock](https://github.com/DingXiaoH/DiverseBranchBlock)
 - [部分模块参考魔鬼面具 开源主页代码](https://github.com/z1069614715/objectdetection_script)
 - [YOLOv7](https://github.com/WongKinYiu/yolov7)
 - [Albumentations 数据增强库](https://github.com/albumentations-team/albumentations)
