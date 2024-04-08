@@ -108,6 +108,7 @@ mixup: 0.0  # image mixup (probability)
 copy_paste: 0.0  # segment copy-paste (probability)
 use_rir: False
 channels: 1
+use_simotm: SimOTMBBS
 # Custom config.yaml ---------------------------------------------------------------------------------------------------
 cfg:  # for overriding defaults.yaml
 
