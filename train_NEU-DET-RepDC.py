@@ -57,7 +57,7 @@ def parse_opt():
     parser.add_argument('--fraction', type=float, default=1.0, help='dataset fraction to train on (default is 1.0, all images in train set)')
     parser.add_argument('--profile', action='store_true', help='profile ONNX and TensorRT speeds during training for loggers')
     parser.add_argument('--use_rir', action='store_true', default=False, help='RIR: random_interpolation_resize ')
-    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray'], default='SimOTMBBS', help='simotm')
+    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray','SimOTMSSS'], default='SimOTMBBS', help='simotm')
 
     # Segmentation
     parser.add_argument('--overlap_mask', type=str2bool, default='True', help='masks should overlap during training (segment train only)')

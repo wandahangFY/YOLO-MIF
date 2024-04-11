@@ -45,6 +45,10 @@ def SimOTMBBS(img):
     result = cv2.merge([img, blur, blur])
     return result
 
+def SimOTMSSS(img):
+    #  TIF  16 bit
+    result = cv2.merge([img, img, img])
+    return result
 
 def enhance_brightness_or_contrast(image, target_gray_value, brightness_alpha=1.5, contrast_alpha=1.0, beta=0):
     gray_value = np.mean(image)
@@ -231,6 +235,10 @@ class BaseDataset(Dataset):
                     im = SimOTMBBS(im)
                 elif self.use_simotm == 'Gray':
                     im = cv2.imread(f, cv2.IMREAD_GRAYSCALE)  # GRAY
+                elif self.use_simotm == 'SimOTMSSS':
+                    im = cv2.imread(f, cv2.IMREAD_UNCHANGED)  # TIF 16bit
+                    im=im.astype(np.float32)
+                    im = SimOTMSSS(im)
                 else:
                     im = cv2.imread(f)  # BGR
                 if im is None:
