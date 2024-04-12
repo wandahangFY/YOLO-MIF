@@ -344,7 +344,7 @@ def check_yolo(verbose=True, device=''):
     LOGGER.info(f'Setup complete ✅ {s}')
 
 
-def check_amp(model):
+def check_amp(model,channels=1):
     """
     This function checks the PyTorch Automatic Mixed Precision (AMP) functionality of a YOLOv8 model.
     If the checks fail, it means there are anomalies with AMP on the system that may cause NaN losses or zero-mAP
@@ -372,7 +372,8 @@ def check_amp(model):
         return a.shape == b.shape and torch.allclose(a, b.float(), atol=0.5)  # close to 0.5 absolute tolerance
 
     f = ROOT / 'assets/bus.jpg'  # image to check
-    im = f if f.exists() else 'https://ultralytics.com/images/bus.jpg' if ONLINE else np.ones((640, 640, 3))
+    # im = f if f.exists() else 'https://ultralytics.com/images/bus.jpg' if ONLINE else np.ones((640, 640, 1))
+    im= np.ones((640, 640,channels))
     prefix = colorstr('AMP: ')
     LOGGER.info(f'{prefix}running Automatic Mixed Precision (AMP) checks with YOLOv8n...')
     warning_msg = "Setting 'amp=True'. If you experience zero-mAP or NaN losses you can disable AMP with amp=False."

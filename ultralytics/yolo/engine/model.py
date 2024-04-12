@@ -96,7 +96,7 @@ class YOLO:
             from ultralytics.hub.session import HUBTrainingSession
             self.session = HUBTrainingSession(model)
             model = self.session.model_file
-
+        self.channels=3
         # Load or create new YOLO model
         suffix = Path(model).suffix
         if not suffix and Path(model).stem in GITHUB_ASSET_STEMS:
@@ -108,6 +108,7 @@ class YOLO:
 
     def __call__(self, source=None, stream=False, **kwargs):
         """Calls the 'predict' function with given arguments to perform object detection."""
+        # print(source)
         return self.predict(source, stream, **kwargs)
 
     def __getattr__(self, attr):
@@ -142,6 +143,8 @@ class YOLO:
         args = {**DEFAULT_CFG_DICT, **self.overrides}  # combine model and default args, preferring model args
         self.model.args = {k: v for k, v in args.items() if k in DEFAULT_CFG_KEYS}  # attach args to model
         self.model.task = self.task
+        self.model.channels=cfg_dict['ch']
+        self.channels = self.model.channels
 
     def _load(self, weights: str, task=None):
         """
@@ -470,13 +473,13 @@ class YOLO:
 
     def profile(self, imgsz):
         if type(imgsz) is int:
-            if self.model.args.channels == 1:
+            if self.channels == 1:
                 inputs = torch.randn((2, 3, imgsz, imgsz))
             else:
                 inputs = torch.randn((2, 3, imgsz, imgsz))
 
         else:
-            if self.model.args.channels==1:
+            if self.channels==1:
                 inputs = torch.randn((2, 3, imgsz[0], imgsz[1]))
             else:
                 inputs = torch.randn((2, 3, imgsz[0], imgsz[1]))

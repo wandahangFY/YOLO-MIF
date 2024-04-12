@@ -187,6 +187,7 @@ class DetectionValidator(BaseValidator):
         """
         gs = max(int(de_parallel(self.model).stride if self.model else 0), 32)
         print("DetectionValidator: use_rir={},val_flag=True".format({self.args.use_rir}))
+        # print(self.data)
         return build_yolo_dataset(self.args, img_path, batch, self.data, mode=mode, stride=gs,use_rir=self.use_rir,val_flag=True,use_simotm=self.use_simotm)
 
     def get_dataloader(self, dataset_path, batch_size):
@@ -208,7 +209,7 @@ class DetectionValidator(BaseValidator):
                                      prefix=colorstr(f'{self.args.mode}: '),
                                      shuffle=False,
                                      seed=self.args.seed)[0]
-
+        # print(dataset_path)
         dataset = self.build_dataset(dataset_path, batch=batch_size, mode='val')
         dataloader = build_dataloader(dataset, batch_size, self.args.workers, shuffle=False, rank=-1)
         return dataloader

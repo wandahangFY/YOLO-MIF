@@ -18,7 +18,7 @@ from PIL import Image
 from ultralytics.yolo.data.utils import IMG_FORMATS, VID_FORMATS
 from ultralytics.yolo.utils import LOGGER, ROOT, is_colab, is_kaggle, ops
 from ultralytics.yolo.utils.checks import check_requirements
-
+from ultralytics.yolo.data.base import SimOTM,SimOTMBBS,SimOTMSSS
 
 @dataclass
 class SourceTypes:
@@ -150,8 +150,9 @@ class LoadScreenshots:
 
 class LoadImages:
     # YOLOv8 image/video dataloader, i.e. `yolo predict source=image.jpg/vid.mp4`
-    def __init__(self, path, imgsz=640, vid_stride=1):
+    def __init__(self, path, imgsz=640, vid_stride=1,use_simotm="SimOTMBBS"):
         """Initialize the Dataloader and raise FileNotFoundError if file not found."""
+        self.use_simotm=use_simotm
         if isinstance(path, str) and Path(path).suffix == '.txt':  # *.txt file with img/vid/dir on each line
             path = Path(path).read_text().rsplit()
         files = []
@@ -219,7 +220,27 @@ class LoadImages:
         else:
             # Read image
             self.count += 1
-            im0 = cv2.imread(path)  # BGR
+            # im0 = cv2.imread(path)  # BGR
+            if self.use_simotm == 'Gray2BGR':
+                im0 = cv2.imread(path)  # BGR
+            elif self.use_simotm == 'SimOTM':
+                im0 = cv2.imread(path, cv2.IMREAD_GRAYSCALE)  # GRAY
+                im0 = SimOTM(im0)
+            elif self.use_simotm == 'SimOTMBBS':
+                im0 = cv2.imread(path, cv2.IMREAD_GRAYSCALE)  # GRAY
+                im0 = SimOTMBBS(im0)
+            elif self.use_simotm == 'Gray':
+                im0 = cv2.imread(path, cv2.IMREAD_GRAYSCALE)  # GRAY
+            elif self.use_simotm == 'Gray16bit':
+                im0 = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # GRAY
+                im0 = im0.astype(np.float32)
+            elif self.use_simotm == 'SimOTMSSS':
+                im0 = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # TIF 16bit
+                im0 = im0.astype(np.float32)
+                im0 = SimOTMSSS(im0)
+            else:
+                im0 = cv2.imread(path)  # BGR
+
             if im0 is None:
                 raise FileNotFoundError(f'Image Not Found {path}')
             s = f'image {self.count}/{self.nf} {path}: '

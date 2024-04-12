@@ -10,8 +10,8 @@ def transformer_opt(opt):
     
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weight', type=str, default='yolov8n.pt', help='training model path')
-    parser.add_argument('--data', type=str, default='ultralytics/datasets/coco128.yaml', help='data yaml path')
+    parser.add_argument('--weight', type=str, default='runs/train/EL/EL_ALL/EL_ALL-YOLOv8n_no_pre24/weights/best.pt', help='training model path')
+    parser.add_argument('--data', type=str, default='ultralytics/datasets/EL_PVELAD_C2.yaml', help='data yaml path')
     parser.add_argument('--imgsz', type=int, default=640, help='size of input images as integer')
     parser.add_argument('--batch', type=int, default=16, help='number of images per batch (-1 for AutoBatch)')
     parser.add_argument('--split', type=str, default='test', choices=['train', 'val', 'test'], help='dataset split to use for validation, i.e. val, test or train')
@@ -39,6 +39,6 @@ class YOLOV8(YOLO):
         
 if __name__ == '__main__':
     opt = parse_opt()
-    
+    # print(opt.data)
     model = YOLOV8(weight=opt.weight)
     model.val(data=opt.data, **transformer_opt(opt))

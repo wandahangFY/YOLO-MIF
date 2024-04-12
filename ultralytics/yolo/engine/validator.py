@@ -87,6 +87,7 @@ class BaseValidator:
 
         self.plots = {}
         self.callbacks = _callbacks or callbacks.get_default_callbacks()
+        self.channels=self.args.channels
 
     @smart_inference_mode()
     def __call__(self, trainer=None, model=None):
@@ -137,8 +138,8 @@ class BaseValidator:
             self.dataloader = self.dataloader or self.get_dataloader(self.data.get(self.args.split), self.args.batch)
 
             model.eval()
-            model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup
-
+            model.warmup(imgsz=(1 if pt else self.args.batch, self.channels, imgsz, imgsz))  # warmup
+             # model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup
         dt = Profile(), Profile(), Profile(), Profile()
         n_batches = len(self.dataloader)
         desc = self.get_desc()

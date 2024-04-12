@@ -116,6 +116,7 @@ class BaseTrainer:
 
         # Model and Dataset
         self.model = self.args.model
+        self.channels=self.args.channels
         try:
             if self.args.task == 'classify':
                 self.data = check_cls_dataset(self.args.data)
@@ -215,7 +216,9 @@ class BaseTrainer:
         self.amp = torch.tensor(self.args.amp).to(self.device)  # True or False
         if self.amp and RANK in (-1, 0):  # Single-GPU and DDP
             callbacks_backup = callbacks.default_callbacks.copy()  # backup callbacks as check_amp() resets them
-            self.amp = torch.tensor(check_amp(self.model), device=self.device)
+            # self.amp = torch.tensor(check_amp(self.model,self.channels), device=self.device)
+            # self.amp=False
+            self.amp =torch.tensor(False, device=self.device)
             callbacks.default_callbacks = callbacks_backup  # restore callbacks
         if RANK > -1:  # DDP
             dist.broadcast(self.amp, src=0)  # broadcast the tensor from rank 0 to all other ranks (returns None)

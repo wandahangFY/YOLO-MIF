@@ -71,6 +71,8 @@ def seed_worker(worker_id):  # noqa
 
 def build_yolo_dataset(cfg, img_path, batch, data, mode='train', rect=False, stride=32,use_rir=False,val_flag=False,use_simotm="SimOTMBBS"):
     """Build YOLO Dataset"""
+    # print(use_simotm)
+    # print(data)
     return YOLODataset(
         img_path=img_path,
         imgsz=cfg.imgsz,
@@ -139,7 +141,7 @@ def check_source(source):
     return source, webcam, screenshot, from_img, in_memory, tensor
 
 
-def load_inference_source(source=None, imgsz=640, vid_stride=1):
+def load_inference_source(source=None, imgsz=640, vid_stride=1,use_simotm="SimOTMBBS"):
     """
     Loads an inference source for object detection and applies necessary transformations.
 
@@ -166,7 +168,7 @@ def load_inference_source(source=None, imgsz=640, vid_stride=1):
     elif from_img:
         dataset = LoadPilAndNumpy(source, imgsz=imgsz)
     else:
-        dataset = LoadImages(source, imgsz=imgsz, vid_stride=vid_stride)
+        dataset = LoadImages(source, imgsz=imgsz, vid_stride=vid_stride,use_simotm=use_simotm)
 
     # Attach source types to the dataset
     setattr(dataset, 'source_type', source_type)

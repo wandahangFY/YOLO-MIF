@@ -38,6 +38,7 @@ class BaseModel(nn.Module):
         Returns:
             (torch.Tensor): The output of the network.
         """
+        # print(x.shape)
         if isinstance(x, dict):  # for cases of training and validating while training.
             return self.loss(x, *args, **kwargs)
         return self.predict(x, *args, **kwargs)
@@ -55,6 +56,7 @@ class BaseModel(nn.Module):
         Returns:
             (torch.Tensor): The last output of the model.
         """
+        # print("_predict_once",x.shape)
         if augment:
             return self._predict_augment(x)
         return self._predict_once(x, profile, visualize)
@@ -289,8 +291,8 @@ class DetectionModel(BaseModel):
         #     self.warehouse_manager = Warehouse_Manager(cell_num_ratio=self.yaml.get('Warehouse_Manager_Ratio', 1.0))
         
         # Define model
-        # ch = self.yaml['ch'] = self.yaml.get('ch', ch)  # input channels
-        # print(ch)
+        ch = self.yaml['ch'] = self.yaml.get('ch', ch)  # input channels
+        # print('yaml',ch)
         if nc and nc != self.yaml['nc']:
             LOGGER.info(f"Overriding model.yaml nc={self.yaml['nc']} with nc={nc}")
             self.yaml['nc'] = nc  # override yaml value
@@ -333,6 +335,7 @@ class DetectionModel(BaseModel):
     def _predict_augment(self, x):
         """Perform augmentations on input image x and return augmented inference and train outputs."""
         img_size = x.shape[-2:]  # height, width
+        # print("_predict_augment",x.shape)
         s = [1, 0.83, 0.67]  # scales
         f = [None, 3, None]  # flips (2-ud, 3-lr)
         y = []  # outputs

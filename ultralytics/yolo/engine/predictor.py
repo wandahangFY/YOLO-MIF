@@ -107,6 +107,7 @@ class BasePredictor:
         self.batch = None
         self.callbacks = _callbacks or callbacks.get_default_callbacks()
         callbacks.add_integration_callbacks(self)
+        self.use_simotm=self.args.use_simotm
 
     def preprocess(self, im):
         """Prepares input image before inference.
@@ -116,9 +117,17 @@ class BasePredictor:
         """
         if not isinstance(im, torch.Tensor):
             im = np.stack(self.pre_transform(im))
-            im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
-            im = np.ascontiguousarray(im)  # contiguous
+            # im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
+            # im = np.ascontiguousarray(im)  # contiguous
+            if len(im.shape) < 4:
+                im = np.expand_dims(im, -1)
+            if (im.shape[3] == 1):
+                im = np.ascontiguousarray(im.transpose(0, 3, 1, 2))
+            else:
+                im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
+                im = np.ascontiguousarray(im)  # contiguous
             im = torch.from_numpy(im)
+
         # NOTE: assuming im with (b, 3, h, w) if it's a tensor
         img = im.to(self.device)
         img = img.half() if self.model.fp16 else img.float()  # uint8 to fp16/32
@@ -185,7 +194,7 @@ class BasePredictor:
 
     def predict_cli(self, source=None, model=None):
         """Method used for CLI prediction. It uses always generator as outputs as not required by CLI mode."""
-        gen = self.stream_inference(source, model)
+        gen = self.stream_inference(source, model, self.use_simotm)
         for _ in gen:  # running CLI inference without accumulating any outputs (do not modify)
             pass
 
@@ -194,7 +203,7 @@ class BasePredictor:
         self.imgsz = check_imgsz(self.args.imgsz, stride=self.model.stride, min_dim=2)  # check image size
         self.transforms = getattr(self.model.model, 'transforms', classify_transforms(
             self.imgsz[0])) if self.args.task == 'classify' else None
-        self.dataset = load_inference_source(source=source, imgsz=self.imgsz, vid_stride=self.args.vid_stride)
+        self.dataset = load_inference_source(source=source, imgsz=self.imgsz, vid_stride=self.args.vid_stride,use_simotm=self.use_simotm)
         self.source_type = self.dataset.source_type
         if not getattr(self, 'stream', True) and (self.dataset.mode == 'stream' or  # streams
                                                   len(self.dataset) > 1000 or  # images
@@ -219,7 +228,9 @@ class BasePredictor:
             (self.save_dir / 'labels' if self.args.save_txt else self.save_dir).mkdir(parents=True, exist_ok=True)
         # Warmup model
         if not self.done_warmup:
-            self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
+            # self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
+            print('self.args.channels',self.args.channels)
+            self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, self.args.channels, *self.imgsz))
             self.done_warmup = True
 
         self.seen, self.windows, self.batch, profilers = 0, [], None, (ops.Profile(), ops.Profile(), ops.Profile())

@@ -47,7 +47,7 @@ class AutoBackend(nn.Module):
                  data=None,
                  fp16=False,
                  fuse=True,
-                 verbose=True):
+                 verbose=True,channels=3):
         """
         MultiBackend class for python inference on various platforms using Ultralytics YOLO.
 
@@ -77,6 +77,7 @@ class AutoBackend(nn.Module):
             | PaddlePaddle          | *_paddle_model   |
         """
         super().__init__()
+        self.channels=channels
         w = str(weights[0] if isinstance(weights, list) else weights)
         nn_module = isinstance(weights, torch.nn.Module)
         pt, jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs, paddle, triton = self._model_type(w)
@@ -421,6 +422,7 @@ class AutoBackend(nn.Module):
         Returns:
             (None): This method runs the forward pass and don't return any value
         """
+        print("imgsz=",imgsz)
         warmup_types = self.pt, self.jit, self.onnx, self.engine, self.saved_model, self.pb, self.triton, self.nn_module
         if any(warmup_types) and (self.device.type != 'cpu' or self.triton):
             im = torch.empty(*imgsz, dtype=torch.half if self.fp16 else torch.float, device=self.device)  # input

@@ -174,6 +174,7 @@ class BaseDataset(Dataset):
 
 
     def get_img_files(self, img_path):
+        # print(img_path)
         """Read image files."""
         try:
             f = []  # image files
@@ -219,6 +220,7 @@ class BaseDataset(Dataset):
                 self.labels[i]['cls'][:, 0] = 0
 
     def load_image(self, i):
+        # print(self.use_simotm )
         """Loads 1 image from dataset index 'i', returns (im, resized hw)."""
         im, f, fn = self.ims[i], self.im_files[i], self.npy_files[i]
         if im is None:  # not cached in RAM
@@ -235,6 +237,9 @@ class BaseDataset(Dataset):
                     im = SimOTMBBS(im)
                 elif self.use_simotm == 'Gray':
                     im = cv2.imread(f, cv2.IMREAD_GRAYSCALE)  # GRAY
+                elif self.use_simotm == 'Gray16bit':
+                    im = cv2.imread(f, cv2.IMREAD_UNCHANGED)  # GRAY
+                    im = im.astype(np.float32)
                 elif self.use_simotm == 'SimOTMSSS':
                     im = cv2.imread(f, cv2.IMREAD_UNCHANGED)  # TIF 16bit
                     im=im.astype(np.float32)

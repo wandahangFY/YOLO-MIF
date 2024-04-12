@@ -10,8 +10,8 @@ def transformer_opt(opt):
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weight', type=str, default='yolov8n.pt', help='training model path')
-    parser.add_argument('--source', type=str, default='ultralytics/assets', help='source directory for images or videos')
+    parser.add_argument('--weight', type=str, default='runs/train/EL/EL_ALL/EL_ALL-YOLOv8n_no_pre24/weights/best.pt', help='training model path')
+    parser.add_argument('--source', type=str, default=r'G:\wan\data\PVELAD_C\good_corner_tiff', help='source directory for images or videos')
     parser.add_argument('--conf', type=float, default=0.25, help='object confidence threshold for detection')
     parser.add_argument('--iou', type=float, default=0.7, help='intersection over union (IoU) threshold for NMS')
     parser.add_argument('--mode', type=str, default='predict', choices=['predict', 'track'], help='predict mode or track mode')
@@ -32,7 +32,8 @@ def parse_opt():
     parser.add_argument('--boxes', action="store_true", default=True, help='Show boxes in segmentation predictions')
     parser.add_argument('--save', action="store_true", default=True, help='save result')
     parser.add_argument('--tracker', type=str, default='bytetrack.yaml', choices=['botsort.yaml', 'bytetrack.yaml'], help='tracker type, [botsort.yaml, bytetrack.yaml]')
-    
+    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS', 'Gray','SimOTMSSS','Gray16bit'],
+                        default='Gray16bit', help='simotm')
     return parser.parse_known_args()[0]
 
 class YOLOV8(YOLO):
