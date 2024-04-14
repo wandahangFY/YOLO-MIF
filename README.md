@@ -11,6 +11,13 @@ This paper proposes an enhanced object detection network, YOLO-MIF, for addressi
 3. Rep3C Head
 4. GIS: Input strategy for gray-scale images
 
+## Supported image formats:
+1. uint8: 'Gray'  Single-channel 8-bit gray-scale image.
+2. uint16: 'Gray16bit' Single-channel 16-bit gray-scale image.
+3. uint8: 'SimOTM' 'SimOTMBBS'   Single-channel 8-bit gray-scale image TO Three-channel 8-bit gray-scale image.
+4. uint8: 'BGR'  Three-channel 8-bit color image.
+
+
 ## Paper Link (To be updated)
 - [YOLO-MIF: Improved YOLOv8 with Multi-Information Fusion for Object Detection in Gray-Scale Images]
 

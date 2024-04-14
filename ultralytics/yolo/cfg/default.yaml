@@ -109,6 +109,7 @@ copy_paste: 0.0  # segment copy-paste (probability)
 use_rir: False
 channels: 1
 use_simotm: SimOTMBBS
+brightness: 0.2  # image brightness (probability)
 # Custom config.yaml ---------------------------------------------------------------------------------------------------
 cfg:  # for overriding defaults.yaml
 

@@ -128,7 +128,7 @@ class Mosaic(BaseMixTransform):
         n (int, optional): The grid size, either 4 (for 2x2) or 9 (for 3x3).
     """
 
-    def __init__(self, dataset, imgsz=640, p=1.0, n=4):
+    def __init__(self, dataset, imgsz=640, p=1.0, n=4,dtype=np.uint8):
         """Initializes the object with a dataset, image size, probability, and border."""
         assert 0 <= p <= 1.0, f'The probability should be in range [0, 1], but got {p}.'
         assert n in (4, 9), 'grid must be equal to 4 or 9.'
@@ -137,6 +137,8 @@ class Mosaic(BaseMixTransform):
         self.imgsz = imgsz
         self.border = (-imgsz // 2, -imgsz // 2)  # width, height
         self.n = n
+        self.dtype=dtype
+        self.gray_value=114 if dtype==np.uint8 else 114*256
 
     def get_indexes(self, buffer=True):
         """Return a list of random indexes from the dataset."""
@@ -165,9 +167,9 @@ class Mosaic(BaseMixTransform):
             # Place img in img4
             if i == 0:  # top left
                 if len(img.shape)==2:  # single channel
-                    img4 = np.full((s * 2, s * 2, 1), 114, dtype=np.uint8)  # base image with 4 tiles
+                    img4 = np.full((s * 2, s * 2, 1), self.gray_value, dtype=self.dtype)  # base image with 4 tiles
                 else:
-                    img4 = np.full((s * 2, s * 2, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
+                    img4 = np.full((s * 2, s * 2, img.shape[2]), self.gray_value, dtype=self.dtype)  # base image with 4 tiles
                 x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
                 x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h  # xmin, ymin, xmax, ymax (small image)
             elif i == 1:  # top right
@@ -206,7 +208,7 @@ class Mosaic(BaseMixTransform):
 
             # Place img in img9
             if i == 0:  # center
-                img9 = np.full((s * 3, s * 3, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
+                img9 = np.full((s * 3, s * 3, img.shape[2]),self.gray_value, dtype=self.dtype)  # base image with 4 tiles
                 h0, w0 = h, w
                 c = s, s, s + w, s + h  # xmin, ymin, xmax, ymax (base) coordinates
             elif i == 1:  # top
@@ -275,9 +277,9 @@ class Mosaic(BaseMixTransform):
 
 class MixUp(BaseMixTransform):
 
-    def __init__(self, dataset, pre_transform=None, p=0.0) -> None:
+    def __init__(self, dataset, pre_transform=None, p=0.0,dtype=np.uint8) -> None:
         super().__init__(dataset=dataset, pre_transform=pre_transform, p=p)
-
+        self.dtype=dtype
     def get_indexes(self):
         """Get a random index from the dataset."""
         return random.randint(0, len(self.dataset) - 1)
@@ -286,7 +288,7 @@ class MixUp(BaseMixTransform):
         """Applies MixUp augmentation https://arxiv.org/pdf/1710.09412.pdf."""
         r = np.random.beta(32.0, 32.0)  # mixup ratio, alpha=beta=32.0
         labels2 = labels['mix_labels'][0]
-        labels['img'] = (labels['img'] * r + labels2['img'] * (1 - r)).astype(np.uint8)
+        labels['img'] = (labels['img'] * r + labels2['img'] * (1 - r)).astype(self.dtype)
         labels['instances'] = Instances.concatenate([labels['instances'], labels2['instances']], axis=0)
         labels['cls'] = np.concatenate([labels['cls'], labels2['cls']], 0)
         return labels
@@ -484,10 +486,11 @@ class RandomPerspective:
 
 class RandomHSV:
 
-    def __init__(self, hgain=0.5, sgain=0.5, vgain=0.5) -> None:
+    def __init__(self, hgain=0.5, sgain=0.5, vgain=0.5,dtype=np.uint8 ) -> None:
         self.hgain = hgain
         self.sgain = sgain
         self.vgain = vgain
+        self.dtype=dtype
 
     def __call__(self, labels):
         """Applies random horizontal or vertical flip to an image with a given probability."""
@@ -495,13 +498,17 @@ class RandomHSV:
         if self.hgain or self.sgain or self.vgain:
             r = np.random.uniform(-1, 1, 3) * [self.hgain, self.sgain, self.vgain] + 1  # random gains
             hue, sat, val = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
-            dtype = img.dtype  # uint8
-
+            dtype = self.dtype  # uint8
+            # if self.dtype == np.uint8:
             x = np.arange(0, 256, dtype=r.dtype)
             lut_hue = ((x * r[0]) % 180).astype(dtype)
             lut_sat = np.clip(x * r[1], 0, 255).astype(dtype)
             lut_val = np.clip(x * r[2], 0, 255).astype(dtype)
-
+            # else:
+            #     x = np.arange(0, 65536, dtype=r.dtype)
+            #     lut_hue = ((x * r[0]) % 180).astype(dtype)
+            #     lut_sat = np.clip(x * r[1], 0, 65535).astype(dtype)
+            #     lut_val = np.clip(x * r[2], 0, 65535).astype(dtype)
             im_hsv = cv2.merge((cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val)))
             cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR, dst=img)  # no return needed
         return labels
@@ -509,22 +516,30 @@ class RandomHSV:
 
 class RandomBrightness:
 
-    def __init__(self, gain=0.5):
+    def __init__(self, gain=0.5, dtype=np.uint8,p=0.2,use_transform=True):
         self.gain = gain
-
+        self.dtype = dtype
+        self.use_transform=use_transform
+        self.p=p
     def __call__(self, labels):
         img = labels['img']
+        # print(self.dtype)
+        # print(img.dtype)
         if self.gain:
-            r = np.random.uniform(-1, 1) * self.gain + 1  # random gain
-            dtype = img.dtype  # uint8
-
-            x = np.arange(0, 256, dtype=dtype)
-            lut = np.clip(x * r, 0, 255).astype(dtype)
-
-            img = cv2.LUT(img, lut)
-            labels['img']=img
+            if self.dtype == np.uint8:
+                r = np.random.uniform(-1, 1) * self.gain + 1  # random gain
+                x = np.arange(0, 256, dtype=self.dtype)
+                lut = np.clip(x * r, 0, 255).astype(self.dtype)
+                img = cv2.LUT(img, lut)
+            else:
+                if self.use_transform==True and  random.random() < self.p:
+                    r = np.random.uniform(-1, 1) * self.gain + 1  # random gain
+                    x = np.arange(0, 256, dtype=np.uint8)
+                    lut = np.clip(x * r, 0, 255).astype(np.uint8)  # 将查找表转换为 np.uint8
+                    img = cv2.LUT((img * 255).astype(np.uint8), lut)  # 将图像转换为 np.uint8 并应用查找表
+                    img = img.astype(self.dtype) / np.max(img)  # 将图像转换回 np.float32
+            labels['img'] = img
         return labels
-
 
 class RandomFlip:
 
@@ -535,7 +550,7 @@ class RandomFlip:
         self.p = p
         self.direction = direction
         self.flip_idx = flip_idx
-
+        self.count=0
     def __call__(self, labels):
         """Resize image and padding for detection, instance segmentation, pose."""
         img = labels['img']
@@ -548,6 +563,7 @@ class RandomFlip:
         # Flip up-down
         if self.direction == 'vertical' and random.random() < self.p:
             img = np.flipud(img)
+
             instances.flipud(h)
         if self.direction == 'horizontal' and random.random() < self.p:
             img = np.fliplr(img)
@@ -555,6 +571,14 @@ class RandomFlip:
             # For keypoints
             if self.flip_idx is not None and instances.keypoints is not None:
                 instances.keypoints = np.ascontiguousarray(instances.keypoints[:, self.flip_idx, :])
+        # # 计算图像的最大值和最小值
+        # img_max = np.max(img)
+        # img_min = np.min(img)
+        #
+        # print("图像最大值：", img_max)
+        # print("图像最小值：", img_min)
+        # cv2.imwrite("G:/wan/data/EL8C/test/"+str(self.count)+".png", img.astype('uint16'))
+        # self.count+=1
         labels['img'] = np.ascontiguousarray(img)
         labels['instances'] = instances
         return labels
@@ -628,8 +652,9 @@ class LetterBox:
 
 class CopyPaste:
 
-    def __init__(self, p=0.5) -> None:
+    def __init__(self, p=0.5,dtype=np.uint8) -> None:
         self.p = p
+        self.dtype = dtype
 
     def __call__(self, labels):
         """Implement Copy-Paste augmentation https://arxiv.org/abs/2012.07177, labels as nx5 np.array(cls, xyxy)."""
@@ -642,7 +667,7 @@ class CopyPaste:
         if self.p and len(instances.segments):
             n = len(instances)
             _, w, _ = im.shape  # height, width, channels
-            im_new = np.zeros(im.shape, np.uint8)
+            im_new = np.zeros(im.shape, self.dtype)
 
             # Calculate ioa first then select indexes randomly
             ins_flip = deepcopy(instances)
@@ -889,7 +914,7 @@ class Format:
         return masks, instances, cls
 
 
-def v8_transforms(dataset, imgsz, hyp):
+def v8_transforms_src(dataset, imgsz, hyp):
     """Convert images to a size suitable for YOLOv8 training."""
     pre_transform = Compose([
         Mosaic(dataset, imgsz=imgsz, p=hyp.mosaic),
@@ -921,6 +946,38 @@ def v8_transforms(dataset, imgsz, hyp):
         RandomFlip(direction='vertical', p=hyp.flipud),
         RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
 
+def v8_transforms(dataset, imgsz, hyp):
+    """Convert images to a size suitable for YOLOv8 training."""
+    dtype=np.uint8 if hyp.use_simotm!="Gray16bit" else np.float32
+    pre_transform = Compose([
+        Mosaic(dataset, imgsz=imgsz, p=hyp.mosaic,dtype=dtype),
+        CopyPaste(p=hyp.copy_paste,dtype=dtype ),
+        RandomPerspective(
+            degrees=hyp.degrees,
+            translate=hyp.translate,
+            scale=hyp.scale,
+            shear=hyp.shear,
+            perspective=hyp.perspective,
+            pre_transform=LetterBox(new_shape=(imgsz, imgsz)),
+        )])
+    flip_idx = dataset.data.get('flip_idx', None)  # for keypoints augmentation
+    if dataset.use_keypoints:
+        kpt_shape = dataset.data.get('kpt_shape', None)
+        if flip_idx is None and hyp.fliplr > 0.0:
+            hyp.fliplr = 0.0
+            LOGGER.warning("WARNING ⚠️ No 'flip_idx' array defined in data.yaml, setting augmentation 'fliplr=0.0'")
+        elif flip_idx and (len(flip_idx) != kpt_shape[0]):
+            raise ValueError(f'data.yaml flip_idx={flip_idx} length must be equal to kpt_shape[0]={kpt_shape[0]}')
+
+    return Compose([
+        pre_transform,
+        MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup,dtype=dtype ),
+        Albumentations(p=1.0) if dtype==np.uint8 else Albumentations(p=0)  ,
+        # RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
+        # RandomBrightness(gain=hyp.hsv_v),
+        RandomBrightness(gain=hyp.hsv_v,dtype=dtype,p=hyp.brightness ) if hyp.channels==1  else RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v,dtype=dtype ),
+        RandomFlip(direction='vertical', p=hyp.flipud),
+        RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
 
 # Classification augmentations -----------------------------------------------------------------------------------------
 def classify_transforms(size=224, mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)):  # IMAGENET_MEAN, IMAGENET_STD
@@ -1018,14 +1075,16 @@ class CenterCrop:
 
 class ToTensor:
     # YOLOv8 ToTensor class for image preprocessing, i.e. T.Compose([LetterBox(size), ToTensor()])
-    def __init__(self, half=False):
+    def __init__(self, half=False,max_value=255):
         """Initialize YOLOv8 ToTensor object with optional half-precision support."""
         super().__init__()
         self.half = half
+        self.max_value=max_value
 
     def __call__(self, im):  # im = np.array HWC in BGR order
         im = np.ascontiguousarray(im.transpose((2, 0, 1))[::-1])  # HWC to CHW -> BGR to RGB -> contiguous
         im = torch.from_numpy(im)  # to torch
         im = im.half() if self.half else im.float()  # uint8 to fp16/32
-        im /= 255.0  # 0-255 to 0.0-1.0
+        # im /= 255.0  # 0-255 to 0.0-1.0
+        im /= self.max_value  # 0-255 to 0.0-1.0
         return im

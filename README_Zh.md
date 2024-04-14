@@ -12,6 +12,12 @@
 3. Rep3C Head
 4. GIS：针对灰度图像的输入策略
 
+## 支持图像格式：
+1. uint8: 'Gray' 单通道8位灰度图像。
+2. uint16: 'Gray16bit' 单通道16位灰度图像。
+3. uint8: 'SimOTM' 'SimOTMBBS' 单通道8位灰度图像转换为三通道8位灰度图像。
+4. uint8: 'BGR' 三通道8位彩色图像。
+
 ## 论文链接(待更新)
 - [YOLO-MIF: Improved YOLOv8 with Multi-Information Fusion for Object Detection in Gray-Scale Images]
 

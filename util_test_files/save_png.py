@@ -23,6 +23,6 @@ for file_name in os.listdir(input_folder):
     output_path = os.path.join(output_folder, os.path.splitext(file_name)[0] + ".png")
 
     # 将图像保存为16位单通道PNG图像
-    cv2.imwrite(output_path, image_gray.astype('uint16'))
+    cv2.imwrite(output_path, image_gray.astype('uint16')*256)
 
 print("图像保存完成！")

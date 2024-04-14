@@ -30,7 +30,7 @@ def parse_opt():
     parser.add_argument('--yaml', type=str, default='ultralytics/models/v8/yolov8n-Gray.yaml', help='model.yaml path')
     parser.add_argument('--weight', type=str, default='', help='pretrained model path')
     parser.add_argument('--cfg', type=str, default='hyp.yaml', help='hyperparameters path')
-    parser.add_argument('--data', type=str, default='ultralytics/datasets/EL_PVELAD_C3.yaml', help='data yaml path')
+    parser.add_argument('--data', type=str, default='ultralytics/datasets/EL_PVELAD_C34.yaml', help='data yaml path')
     
     parser.add_argument('--epochs', type=int, default=300, help='number of epochs to train for')
     parser.add_argument('--patience', type=int, default=100, help='EarlyStopping patience (epochs without improvement)')
@@ -41,7 +41,7 @@ def parse_opt():
     parser.add_argument('--device', type=str, default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--workers', type=int, default=2, help='max dataloader workers (per RANK in DDP mode)')
     parser.add_argument('--project', type=str, default= 'runs/train/EL/EL_ALL', help='save to project/name')
-    parser.add_argument('--name', type=str, default='EL_ALL_png-YOLOv8n_no_pre', help='save to project/name')
+    parser.add_argument('--name', type=str, default='EL_ALL_png2s-YOLOv8n_no_pre', help='save to project/name')
     parser.add_argument('--resume', type=str, default='', help='resume training from last checkpoint')
     parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'Adamax', 'NAdam', 'RAdam', 'AdamW', 'RMSProp', 'auto'], default='SGD', help='optimizer (auto -> ultralytics/yolo/engine/trainer.py in build_optimizer funciton.)')
     parser.add_argument('--close_mosaic', type=int, default=0, help='(int) disable mosaic augmentation for final epochs')
@@ -58,9 +58,10 @@ def parse_opt():
     parser.add_argument('--fraction', type=float, default=1.0, help='dataset fraction to train on (default is 1.0, all images in train set)')
     parser.add_argument('--profile', action='store_true', help='profile ONNX and TensorRT speeds during training for loggers')
     parser.add_argument('--use_rir', action='store_true', default=True, help='RIR: random_interpolation_resize ')
-    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS', 'Gray','SimOTMSSS','Gray16bit'],
+    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS', 'Gray','SimOTMSSS','Gray16bit','BGR'],
                         default='Gray16bit', help='simotm')
     parser.add_argument('--channels', type=int, default=1,  help='input channels')
+    parser.add_argument('--brightness', type=float, default=0.2, help='image brightness (probability)')
     # Segmentation
     parser.add_argument('--overlap_mask', type=str2bool, default='True', help='masks should overlap during training (segment train only)')
     parser.add_argument('--mask_ratio', type=int, default=4, help='mask downsample ratio (segment train only)')
