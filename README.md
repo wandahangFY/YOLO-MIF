@@ -139,3 +139,7 @@ Other open-source projects are being organized and released gradually. Please ch
 6. Paper illustrations:
    - Principle diagrams, network structure diagrams, flowcharts: PPT (Personal choice, can also use Visio, Edraw, AI, etc.)
    - Experimental comparisons: Orgin (Matlab, Python, R, Excel all applicable)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=wandahangFY/YOLO-MIF&type=Date)](https://star-history.com/#wandahangFY/YOLO-MIF&Date)
