@@ -112,7 +112,9 @@ parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'Si
 - [Secondary Innovation Solutions]() [The last page of the PPT tutorial provides some secondary innovation solutions. TODO: Will be written and updated later if needed]
 
 ## Citation Format
-- Pending paper update
+Yolo-Mif: Improved Yolov8 with Multi-Information Fusion for Object Detection in Gray-Scale Images
+
+[https://doi.org/10.2139/ssrn.4767026]( https://doi.org/10.2139/ssrn.4767026)
 
 ## Reference Links
 - [Codebase used for overall framework: YOLOv8](https://github.com/ultralytics/ultralytics)

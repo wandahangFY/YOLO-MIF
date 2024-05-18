@@ -115,7 +115,9 @@ parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'Si
 
 
 ## 引用格式
-- 待更新论文
+- Yolo-Mif: Improved Yolov8 with Multi-Information Fusion for Object Detection in Gray-Scale Images
+-[https://doi.org/10.2139/ssrn.4767026]( https://doi.org/10.2139/ssrn.4767026)
+
 
 ## 参考链接
 - [整体框架使用代码：YOLOv8](https://github.com/ultralytics/ultralytics)

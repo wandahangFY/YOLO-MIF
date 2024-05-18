@@ -701,6 +701,15 @@ def make_odd(num):
 
 
 
+# Refer to   https://github.com/NUS-Tim/MedAugment
+# @misc{liu2023medaugment,
+#       title={MedAugment: Universal Automatic Data Augmentation Plug-in for Medical Image Analysis},
+#       author={Zhaoshan Liu and Qiujie Lv and Yifan Li and Ziduo Yang and Lei Shen},
+#       year={2023},
+#       eprint={2306.17466},
+#       archivePrefix={arXiv},
+#       primaryClass={eess.IV}
+# }
 
 class Albumentations:
     # YOLOv8 Albumentations class (optional, only used if package is installed)
