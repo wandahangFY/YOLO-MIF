@@ -114,9 +114,13 @@ parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'Si
 - [二次创新方案]() [PPT教程的最后一页提供了部分二次创新方案，TODO: 如有需要，会在后面编写并更新代码]
 
 
+## 文章链接
+[YOLO-MIF: Improved YOLOv8 with Multi-Information fusion for object detection in Gray-Scale images]( https://www.sciencedirect.com/science/article/pii/S1474034624003574)
+
+[https://www.sciencedirect.com/science/article/pii/S1474034624003574]( https://www.sciencedirect.com/science/article/pii/S1474034624003574)
+
 ## 引用格式
-- Yolo-Mif: Improved Yolov8 with Multi-Information Fusion for Object Detection in Gray-Scale Images
--[https://doi.org/10.2139/ssrn.4767026]( https://doi.org/10.2139/ssrn.4767026)
+Wan, D.; Lu, R.; Hu, B.; Yin, J.; Shen, S.; xu, T.; Lang, X. YOLO-MIF: Improved YOLOv8 with Multi-Information Fusion for Object Detection in Gray-Scale Images. Advanced Engineering Informatics 2024, 62, 102709, doi:10.1016/j.aei.2024.102709.
 
 
 ## 参考链接

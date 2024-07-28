@@ -111,10 +111,14 @@ parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'Si
 ## Secondary Innovation Points Summary and Code Implementation (TODO)
 - [Secondary Innovation Solutions]() [The last page of the PPT tutorial provides some secondary innovation solutions. TODO: Will be written and updated later if needed]
 
-## Citation Format
-Yolo-Mif: Improved Yolov8 with Multi-Information Fusion for Object Detection in Gray-Scale Images
+## Paper Link
+[YOLO-MIF: Improved YOLOv8 with Multi-Information fusion for object detection in Gray-Scale images]( https://www.sciencedirect.com/science/article/pii/S1474034624003574)
 
-[https://doi.org/10.2139/ssrn.4767026]( https://doi.org/10.2139/ssrn.4767026)
+[https://www.sciencedirect.com/science/article/pii/S1474034624003574]( https://www.sciencedirect.com/science/article/pii/S1474034624003574)
+
+## Citation Format
+Wan, D.; Lu, R.; Hu, B.; Yin, J.; Shen, S.; xu, T.; Lang, X. YOLO-MIF: Improved YOLOv8 with Multi-Information Fusion for Object Detection in Gray-Scale Images. Advanced Engineering Informatics 2024, 62, 102709, doi:10.1016/j.aei.2024.102709.
+
 
 ## Reference Links
 - [Codebase used for overall framework: YOLOv8](https://github.com/ultralytics/ultralytics)
