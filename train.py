@@ -58,7 +58,7 @@ def parse_opt():
     parser.add_argument('--fraction', type=float, default=1.0, help='dataset fraction to train on (default is 1.0, all images in train set)')
     parser.add_argument('--profile', action='store_true', help='profile ONNX and TensorRT speeds during training for loggers')
     parser.add_argument('--use_rir', action='store_true', default=True, help='RIR: random_interpolation_resize ')
-    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS', 'Gray','SimOTMSSS','Gray16bit','BGR'],
+    parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS', 'Gray','SimOTMSSS','Gray16bit','BGR','RGBT'],
                         default='SimOTMBBS', help='simotm')
     parser.add_argument('--channels', type=int, default=3, help='input channels')
     parser.add_argument('--brightness', type=float, default=0.2, help='image brightness (probability)')
