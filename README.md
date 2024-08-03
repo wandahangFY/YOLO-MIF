@@ -21,6 +21,7 @@ This paper proposes an enhanced object detection network, YOLO-MIF, for addressi
 Among them, the directory format of 1-4 is consistent with YOLOv8, and the data format directory of 'RGBT' is as follows:
 ![img.png](img.png)
 
+![YOLO-MIF-RGBT:](PaperImages/YOLO-MIF-RGBT.JPG)
 
 ## Installation
 <details open>
