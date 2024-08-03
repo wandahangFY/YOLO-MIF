@@ -16,7 +16,7 @@ This paper proposes an enhanced object detection network, YOLO-MIF, for addressi
 2. uint16: 'Gray16bit' Single-channel 16-bit gray-scale image.
 3. uint8: 'SimOTM' 'SimOTMBBS'   Single-channel 8-bit gray-scale image TO Three-channel 8-bit gray-scale image.
 4. uint8: 'BGR'  Three-channel 8-bit color image.
-5. unit8: 'RGBT' Four-channel 8-bit color image.
+5. unit8: 'RGBT' Four-channel 8-bit color image.(Including early fusion, middle fusion, late fusion, score fusion, weight sharing mode)
 
 Among them, the directory format of 1-4 is consistent with YOLOv8, and the data format directory of 'RGBT' is as follows:
 ![img.png](img.png)
