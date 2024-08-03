@@ -23,7 +23,7 @@
 其中，1-4的目录格式与YOLOv8保持一致，'RGBT'的数据格式目录如下：
 
 ![img.png](img.png)
-![YOLO-MIF-RGBT:](PaperImages/YOLO-MIF-RGBT.JPG)
+![YOLO-MIF-RGBT:](PaperImages/YOLO-MIF-RGBT.jpg)
 
 
 ## 安装
