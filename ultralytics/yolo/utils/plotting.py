@@ -335,7 +335,12 @@ def plot_images(images,
         if i == max_subplots:  # if last batch has fewer images than we expect
             break
         x, y = int(w * (i // ns)), int(h * (i % ns))  # block origin
-        im = im.transpose(1, 2, 0)
+        # im = im.transpose(1, 2, 0)
+        # print(im.shape)
+        if (im.shape[0] == 4):
+            im = im.transpose(1, 2, 0)[:, :, :3]
+        else:
+            im = im.transpose(1, 2, 0)
         mosaic[y:y + h, x:x + w, :] = im
 
     # Resize (optional)

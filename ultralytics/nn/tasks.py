@@ -758,6 +758,12 @@ def parse_model(d, ch, verbose=True, warehouse_manager=None):  # model_dict, inp
                 n = 1
         elif m is nn.BatchNorm2d:
             args = [ch[f]]
+        elif m is SilenceChannel:
+            c2 = args[1] - args[0]
+        elif m is NumberToChannel:
+            c2 = ch[f] * 2
+        elif m is ChannelToNumber:
+            c2 = 3
         elif m is Concat:
             c2 = sum(ch[x] for x in f)
         elif m in (Detect,DetectDBB,DetectACDBB,DetectAC,DetectDeepDBB,DetectDeepACDBB,

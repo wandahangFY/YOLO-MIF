@@ -904,6 +904,12 @@ class Format:
             img = np.expand_dims(img, -1)
         if(img.shape[2]==1):
             img = np.ascontiguousarray(img.transpose(2, 0, 1))
+        elif(img.shape[2]==4):
+            img3c = np.ascontiguousarray(img.transpose(2, 0, 1)[:3, :, :][::-1])
+            img1c = img.transpose(2, 0, 1)[-1:, :, :]
+            img = np.concatenate((img3c, img1c), axis=0)
+            # img = torch.from_numpy(img)
+            # ----------------------------   3 _format_img
         else:
             img = np.ascontiguousarray(img.transpose(2, 0, 1)[::-1])
         img = torch.from_numpy(img)
@@ -921,6 +927,97 @@ class Format:
             masks = polygons2masks((h, w), segments, color=1, downsample_ratio=self.mask_ratio)
 
         return masks, instances, cls
+
+
+class RandomHSV4C:
+
+    def __init__(self, hgain=0.5, sgain=0.5, vgain=0.5, brightness_range=(0.5, 1.5)) -> None:
+        self.hgain = hgain
+        self.sgain = sgain
+        self.vgain = vgain
+        self.brightness_range = brightness_range
+
+    def __call__(self, labels):
+        """Applies image HSV augmentation"""
+        img = labels['img']
+        gray = img[:, :, 3]  # Extract the grayscale channel from the 4th channel
+        bgr = img[:, :, :3]  # Extract the BGR channels
+        if self.hgain or self.sgain or self.vgain:
+            r = np.random.uniform(-1, 1, 3) * [self.hgain, self.sgain, self.vgain] + 1  # random gains for H, S, V
+            hue, sat, val = cv2.split(cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV))  # split the 3 channels: H, S, V
+            dtype = bgr.dtype  # uint8
+
+            x = np.arange(0, 256, dtype=r.dtype)
+            lut_hue = ((x * r[0]) % 180).astype(dtype)
+            lut_sat = np.clip(x * r[1], 0, 255).astype(dtype)
+            lut_val = np.clip(x * r[2], 0, 255).astype(dtype)
+
+            im_hsv = cv2.merge((cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val)))
+            bgr_transformed = cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR)  # Transform BGR channels with HSV values
+
+            # Adjust brightness of the grayscale channel
+            # brightness_factor = np.random.uniform(self.brightness_range[0], self.brightness_range[1])
+            # adjusted_gray = np.clip(gray * brightness_factor, 0, 255).astype(gray.dtype)
+
+            r = np.random.uniform(-1, 1) * self.vgain + 1  # random gain
+            dtype = gray.dtype  # uint8
+            x = np.arange(0, 256, dtype=dtype)
+            lut = np.clip(x * r, 0, 255).astype(dtype)
+            gray = cv2.LUT(gray, lut)
+
+            img[:, :, :3] = bgr_transformed  # Update the BGR channels with the transformed values
+            img[:, :, 3] = gray  # Update the grayscale channel with adjusted brightness
+            labels['img']=img
+        return labels
+
+class Albumentations4C:
+    """Albumentations transformations. Optional, uninstall package to disable.
+    Applies Blur, Median Blur, convert to grayscale, Contrast Limited Adaptive Histogram Equalization,
+    random change of brightness and contrast, RandomGamma and lowering of image quality by compression."""
+
+    def __init__(self, p=1.0):
+        """Initialize the transform object for YOLO bbox formatted params."""
+        self.p = p
+        self.transform = None
+        prefix = colorstr('albumentations: ')
+        try:
+            import albumentations as A
+
+            check_version(A.__version__, '1.0.3', hard=True)  # version requirement
+
+            T = [
+                A.Blur(p=0.01),
+                A.MedianBlur(p=0.01),
+                # A.ToGray(p=0.01),
+                # A.CLAHE(p=0.01),
+                A.RandomBrightnessContrast(p=0.0),
+                A.RandomGamma(p=0.0),
+                A.ImageCompression(quality_lower=75, p=0.0)]  # transforms
+            self.transform = A.Compose(T, bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
+
+            LOGGER.info(prefix + ', '.join(f'{x}'.replace('always_apply=False, ', '') for x in T if x.p))
+        except ImportError:  # package not installed, skip
+            pass
+        except Exception as e:
+            LOGGER.info(f'{prefix}{e}')
+
+    def __call__(self, labels):
+        """Generates object detections and returns a dictionary with detection results."""
+        im = labels['img']
+        cls = labels['cls']
+        if len(cls):
+            labels['instances'].convert_bbox('xywh')
+            labels['instances'].normalize(*im.shape[:2][::-1])
+            bboxes = labels['instances'].bboxes
+            # TODO: add supports of segments and keypoints
+            if self.transform and random.random() < self.p:
+                new = self.transform(image=im, bboxes=bboxes, class_labels=cls)  # transformed
+                if len(new['class_labels']) > 0:  # skip update if no bbox in new im
+                    labels['img'] = new['image']
+                    labels['cls'] = np.array(new['class_labels'])
+                    bboxes = np.array(new['bboxes'], dtype=np.float32)
+            labels['instances'].update(bboxes=bboxes)
+        return labels
 
 
 def v8_transforms_src(dataset, imgsz, hyp):
@@ -977,16 +1074,31 @@ def v8_transforms(dataset, imgsz, hyp):
             LOGGER.warning("WARNING ⚠️ No 'flip_idx' array defined in data.yaml, setting augmentation 'fliplr=0.0'")
         elif flip_idx and (len(flip_idx) != kpt_shape[0]):
             raise ValueError(f'data.yaml flip_idx={flip_idx} length must be equal to kpt_shape[0]={kpt_shape[0]}')
+    alb=Albumentations(p=1.0) if dtype == np.uint8 else Albumentations(p=0)
+    random_hsv= RandomBrightness(gain=hyp.hsv_v, dtype=dtype, p=hyp.brightness) if hyp.channels == 1 else RandomHSV(
+            hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v, dtype=dtype)
 
+    if  hyp.channels == 4:
+        alb=Albumentations4C(p=1.0)
+        random_hsv = RandomHSV4C(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v)
     return Compose([
         pre_transform,
-        MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup,dtype=dtype ),
-        Albumentations(p=1.0) if dtype==np.uint8 else Albumentations(p=0)  ,
-        # RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
-        # RandomBrightness(gain=hyp.hsv_v),
-        RandomBrightness(gain=hyp.hsv_v,dtype=dtype,p=hyp.brightness ) if hyp.channels==1  else RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v,dtype=dtype ),
+        MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup, dtype=dtype),
+        alb,
+        random_hsv,
         RandomFlip(direction='vertical', p=hyp.flipud),
         RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
+
+    # return Compose([
+    #     pre_transform,
+    #     MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup,dtype=dtype ),
+    #     Albumentations(p=1.0) if dtype==np.uint8 else Albumentations(p=0)  ,
+    #     # RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
+    #     # RandomBrightness(gain=hyp.hsv_v),
+    #     RandomBrightness(gain=hyp.hsv_v,dtype=dtype,p=hyp.brightness ) if hyp.channels==1 else RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v,dtype=dtype ),
+    #
+    #     RandomFlip(direction='vertical', p=hyp.flipud),
+    #     RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
 
 # Classification augmentations -----------------------------------------------------------------------------------------
 def classify_transforms(size=224, mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)):  # IMAGENET_MEAN, IMAGENET_STD

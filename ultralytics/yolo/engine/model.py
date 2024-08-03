@@ -145,6 +145,7 @@ class YOLO:
         self.model.task = self.task
         self.model.channels=cfg_dict['ch']
         self.channels = self.model.channels
+        # print(self.channels)
 
     def _load(self, weights: str, task=None):
         """
@@ -472,15 +473,20 @@ class YOLO:
         return tuner.get_results()
 
     def profile(self, imgsz):
+        print(self.channels)
         if type(imgsz) is int:
             if self.channels == 1:
                 inputs = torch.randn((2, 3, imgsz, imgsz))
+            elif self.channels == 4:
+                inputs = torch.randn((2, 4, imgsz, imgsz))
             else:
                 inputs = torch.randn((2, 3, imgsz, imgsz))
 
         else:
             if self.channels==1:
                 inputs = torch.randn((2, 3, imgsz[0], imgsz[1]))
+            elif self.channels == 4:
+                inputs = torch.randn((2, 4, imgsz, imgsz))
             else:
                 inputs = torch.randn((2, 3, imgsz[0], imgsz[1]))
         if next(self.model.parameters()).device.type == 'cuda':

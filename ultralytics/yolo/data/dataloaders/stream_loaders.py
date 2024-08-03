@@ -238,6 +238,31 @@ class LoadImages:
                 im0 = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # TIF 16bit
                 im0 = im0.astype(np.float32)
                 im0 = SimOTMSSS(im0)
+            elif self.use_simotm == 'RGBT':
+                im_visible = cv2.imread(path)  # BGR
+                im_infrared = cv2.imread(path.replace('visible', 'infrared'), cv2.IMREAD_GRAYSCALE)  # BGR
+
+                h_vis, w_vis = im_visible.shape[:2]  # orig hw
+                h_inf, w_inf = im_infrared.shape[:2]  # orig hw
+
+                if h_vis != h_inf or w_vis != w_inf:
+                    r_vis = self.imgsz / max(h_vis, w_vis)  # ratio
+                    r_inf = self.imgsz / max(h_inf, w_inf)  # ratio
+                    if r_vis != 1:  # if sizes are not equal
+                        interp = cv2.INTER_LINEAR if (self.augment or r_vis > 1) else cv2.INTER_AREA
+                        im_visible = cv2.resize(im_visible, (
+                        min(math.ceil(w_vis * r_vis), self.imgsz), min(math.ceil(h_vis * r_vis), self.imgsz)),
+                                                interpolation=interp)
+                    if r_inf != 1:  # if sizes are not equal
+                        interp = cv2.INTER_LINEAR if (self.augment or r_inf > 1) else cv2.INTER_AREA
+                        im_visible = cv2.resize(im_visible, (
+                            min(math.ceil(w_inf * r_inf), self.imgsz), min(math.ceil(h_inf * r_inf), self.imgsz)),
+                                                interpolation=interp)
+
+                # 将彩色图像的三个通道分离
+                b, g, r = cv2.split(im_visible)
+                # 合并成四通道图像
+                im0 = cv2.merge((b, g, r, im_infrared))
             else:
                 im0 = cv2.imread(path)  # BGR
 

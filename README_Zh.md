@@ -17,11 +17,13 @@
 2. uint16: 'Gray16bit' 单通道16位灰度图像。
 3. uint8: 'SimOTM' 'SimOTMBBS' 单通道8位灰度图像转换为三通道8位灰度图像。
 4. uint8: 'BGR' 三通道8位彩色图像。
+5. unit8: 'RGBT' 四通道8位多光谱图像。
 
-## 论文链接(待更新)
-- [YOLO-MIF: Improved YOLOv8 with Multi-Information Fusion for Object Detection in Gray-Scale Images]
 
-[//]: # (- &#40;https://www.sciencedirect.com/science/article/pii/S0957417423008576&#41;)
+其中，1-4的目录格式与YOLOv8保持一致，'RGBT'的数据格式目录如下：
+
+![img.png](img.png)
+
 
 ## 安装
 <details open>

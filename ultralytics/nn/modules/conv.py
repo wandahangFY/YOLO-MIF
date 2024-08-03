@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 
 __all__ = ('Conv', 'Conv2', 'LightConv', 'DWConv', 'DWConvTranspose2d', 'ConvTranspose', 'Focus', 'GhostConv',
-           'ChannelAttention', 'SpatialAttention', 'CBAM', 'Concat', 'RepConv','ACBlock')
+           'ChannelAttention', 'SpatialAttention', 'CBAM', 'Concat', 'RepConv','ACBlock','Silence','SilenceChannel','ChannelToNumber','NumberToChannel')
 
 
 def autopad(k, p=None, d=1):  # kernel, padding, dilation
@@ -460,3 +460,44 @@ class ACBlock(nn.Module):
         :,
         square_h // 2 - asym_h // 2: square_h // 2 - asym_h // 2 + asym_h,
         square_w // 2 - asym_w // 2: square_w // 2 - asym_w // 2 + asym_w] += asym_kernel
+
+
+#------------------------------------------- 灵感来自于v9
+class Silence(nn.Module):
+    def __init__(self):
+        super(Silence, self).__init__()
+    def forward(self, x):
+        return x
+
+class SilenceChannel(nn.Module):
+    def __init__(self,c_start, c_end):
+        super(SilenceChannel, self).__init__()
+        self.c_start=c_start
+        self.c_end = c_end
+    def forward(self, x):
+        return x[...,self.c_start:self.c_end, :,:]
+
+class ChannelToNumber(nn.Module):
+    def __init__(self):
+        super(ChannelToNumber, self).__init__()
+
+    def forward(self, x):
+        n1 = x[:, :3, :, :]
+        n2 = x[:, 3:4, :, :].expand(-1, 3, -1, -1)  # 将第四个通道扩展成三通道
+        combined_output = torch.cat((n1, n2), dim=0)  # 将结果拼接成(batch_size*2, 3, H, W)
+        return combined_output
+
+class NumberToChannel(nn.Module):
+    def __init__(self):
+        super(NumberToChannel, self).__init__()
+
+    def forward(self, x):
+
+        x1, x2 = torch.chunk(x, 2, dim=0)  # 按照batch size分离成两个tensor
+        combined_output = torch.cat((x1, x2),
+                                    dim=1)  # 将两个tensor按通道合并                                                                                         c_times_2, H, W)
+        return combined_output
+
+        return x
+
+#-------------------------------------------
