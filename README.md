@@ -59,12 +59,14 @@ python train_FLIR_ADAS-16-RepDCHead.py
 1. RIR=True + SimOTMBBS = GIS
 - SimOTM yields better results but reduces speed, while the SimOTMBBS used in this paper almost does not reduce speed. If readers need, SimOTM will be open-sourced separately on arXiv without further journal submissions. Original paper and details can be found at: [Link](https://www.researchgate.net/publication/372944004_Otm-Fusion_An_Image_Preprocessing_Method_for_Object_Detection_in_Grayscale_Image)
 - Function.cpp contains CUDA and C++ (CPU) implementations
-- Code related to GIS can be found in ultralytics/yolo/data/base.py
+- Code related to GIIS can be found in ultralytics/yolo/data/base.py
 - Code related to NEU-DET can be found in train_NEU-DET-RepDC.py
+- train-gray.py for single channel training and inference --use_simotm is 'Gray' or 'Gray16bit', channels=1, Model files inside need to set up ch: 1 see ultralytics/models/v8 / yolov8-Gray.yaml
+- train_RGBT.py is single-channel training and inference --use_simotm is 'RGBT', channels=4, In the model file you need to set ch:4 see ultralytics/models/v8-RGBT/yolov8-RGBT-earlyfusion.yaml
 
 ```python
-parser.add_argument('--use_rir', action='store_true', default=False, help='RIR: random_interpolation_resize ')
-parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray'], default='SimOTMBBS', help='simotm')
+ parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray','SimOTMSSS','Gray16bit','BGR','RGBT'], default='SimOTMBBS', help='simotm')
+ parser.add_argument('--channels', type=int, default=3, help='input channels')
 ```
 - GIS 
 ![GIS simplified diagram as follows:](PaperImages/GIS.png)
