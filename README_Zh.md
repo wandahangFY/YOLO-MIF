@@ -65,7 +65,7 @@ python train_FLIR_ADAS-16-RepDCHead.py
 - ultralytics/yolo/data/base.py  （代码位于此文件）
 - train_NEU-DET-RepDC.py  （调用代码位于此文件）
 - train-Gray.py 为单通道训练和推理  --use_simotm 为 'Gray'或者'Gray16bit'， channels=1， 模型文件里面需要设置 ch:1  见 ultralytics/models/v8/yolov8-Gray.yaml
-- train_RGBT.py 为单通道训练和推理  --use_simotm 为 'RGBT'， channels=4，模型文件里面需要设置 ch:4  见 ultralytics/models/v8-RGBT/yolov8-RGBT-earlyfusion.yaml
+- train_RGBT.py 为多光谱训练和推理  --use_simotm 为 'RGBT'， channels=4，模型文件里面需要设置 ch:4  见 ultralytics/models/v8-RGBT/yolov8-RGBT-earlyfusion.yaml
 ```python
  parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray','SimOTMSSS','Gray16bit','BGR','RGBT'], default='SimOTMBBS', help='simotm')
  parser.add_argument('--channels', type=int, default=3, help='input channels')
