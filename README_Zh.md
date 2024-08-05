@@ -20,7 +20,7 @@
 5. unit8: 'RGBT' 四通道8位多光谱图像。(包括前期融合，中期融合，后期融合，分数融合，权重共享模式)
 
 
-其中，1-4的目录格式与YOLOv8保持一致，'RGBT'的数据格式目录如下：
+其中，1-4的目录格式与YOLOv8保持一致，'RGBT'的数据格式目录如下，如果采用train.txt和val.txt，则只需要写visible下面的图片地址即可：
 
 ![img.png](img.png)
 ![YOLO-MIF-RGBT:](PaperImages/YOLO-MIF-RGBT.jpg)
