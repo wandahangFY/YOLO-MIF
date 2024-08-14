@@ -65,8 +65,8 @@ python train_FLIR_ADAS-16-RepDCHead.py
 - train_RGBT.py for multi-channel training and inference --use_simotm is 'RGBT', channels=4, In the model file you need to set ch:4 see ultralytics/models/v8-RGBT/yolov8-RGBT-earlyfusion.yaml
 
 ```python
- parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray','SimOTMSSS','Gray16bit','BGR','RGBT'], default='SimOTMBBS', help='simotm')
- parser.add_argument('--channels', type=int, default=3, help='input channels')
+parser.add_argument('--use_simotm', type=str, choices=['Gray2BGR', 'SimOTM', 'SimOTMBBS','Gray','SimOTMSSS','Gray16bit','BGR','RGBT'], default='SimOTMBBS', help='simotm')
+parser.add_argument('--channels', type=int, default=3, help='input channels')
 ```
 - GIS 
 ![GIS simplified diagram as follows:](PaperImages/GIS.png)

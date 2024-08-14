@@ -11,10 +11,11 @@ import torch.nn.functional as F
 from .conv import Conv, DWConv, GhostConv, LightConv, RepConv
 from .transformer import TransformerBlock
 from .attention import *
-from .rep_block import DiverseBranchBlock,ACBlockDBB,DeepACBlockDBB,DeepDiverseBranchBlock,WideDiverseBranchBlock,ACBlock,FusedDiverseBranchBlock
+from .rep_block import DiverseBranchBlock,ACBlockDBB,DeepACBlockDBB,DeepDiverseBranchBlock,WideDiverseBranchBlock,ACBlock,FusedDiverseBranchBlock,RecursionDiverseBranchBlock,RecursionDiverseBranchBlockInner,MixedDBB
 __all__ = ('DFL', 'HGBlock', 'HGStem', 'SPP', 'SPPF', 'C1', 'C2', 'C3', 'C2f', 'C3x', 'C3TR', 'C3Ghost',
            'GhostBottleneck', 'Bottleneck', 'BottleneckCSP', 'Proto', 'RepC3','C3SECA',
-           'C2f_ACDBB', 'C2f_DeepACDBB', 'C2f_DeepDBB', 'C2f_DeepACDBBMix', 'C2f_DBB', 'C2f_ACNET', 'C2f_WDBB'
+           'C2f_ACDBB', 'C2f_DeepACDBB', 'C2f_DeepDBB', 'C2f_DeepACDBBMix', 'C2f_DBB', 'C2f_ACNET', 'C2f_WDBB','C2f_RDBB','C2f_MixedDBB',
+           'C3_MixedDBB','C3_RDBB'
            )
 
 def autopad(k, p=None, d=1):  # kernel, padding, dilation
@@ -507,11 +508,51 @@ class C2f_ACNET(C2f):
         super().__init__(c1, c2, n, shortcut, g, e)
         self.m = nn.ModuleList(Bottleneck_ACNET(self.c, self.c, shortcut, g, k=(3, 3), e=1.0) for _ in range(n))
 
-class C3_DBB(C3):
+class C3_ACNET(C3):
     def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5):
         super().__init__(c1, c2, n, shortcut, g, e)
         c_ = int(c2 * e)  # hidden channels
         self.m = nn.Sequential(*(Bottleneck_ACNET(c_, c_, shortcut, g, k=(1, 3), e=1.0) for _ in range(n)))
+
+
+
+class Bottleneck_RDBB(Bottleneck):
+    def __init__(self, c1, c2, shortcut=True, g=1, k=(3, 3), e=0.5):
+        super().__init__(c1, c2, shortcut, g, k, e)
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = RecursionDiverseBranchBlock(c1, c_, k[0], 1,recursion_layer=2)
+        self.cv2 = RecursionDiverseBranchBlock(c_, c2, k[1], 1, groups=g,recursion_layer=2)
+
+class C2f_RDBB(C2f):
+    def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5):
+        super().__init__(c1, c2, n, shortcut, g, e)
+        self.m = nn.ModuleList(Bottleneck_RDBB(self.c, self.c, shortcut, g, k=(3, 3), e=1.0) for _ in range(n))
+
+class C3_RDBB(C3):
+    def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5):
+        super().__init__(c1, c2, n, shortcut, g, e)
+        c_ = int(c2 * e)  # hidden channels
+        self.m = nn.Sequential(*(Bottleneck_RDBB(c_, c_, shortcut, g, k=(1, 3), e=1.0) for _ in range(n)))
+
+
+class Bottleneck_MixedDBB(Bottleneck):
+    def __init__(self, c1, c2, shortcut=True, g=1, k=(3, 3), e=0.5):
+        super().__init__(c1, c2, shortcut, g, k, e)
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = MixedDBB(c1, c_, k[0], 1)
+        self.cv2 = MixedDBB(c_, c2, k[1], 1, groups=g)
+
+class C2f_MixedDBB(C2f):
+    def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5):
+        super().__init__(c1, c2, n, shortcut, g, e)
+        self.m = nn.ModuleList(Bottleneck_MixedDBB(self.c, self.c, shortcut, g, k=(3, 3), e=1.0) for _ in range(n))
+
+class C3_MixedDBB(C3):
+    def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5):
+        super().__init__(c1, c2, n, shortcut, g, e)
+        c_ = int(c2 * e)  # hidden channels
+        self.m = nn.Sequential(*(Bottleneck_MixedDBB(c_, c_, shortcut, g, k=(1, 3), e=1.0) for _ in range(n)))
+
 
 
 ######################################## C2f-DDB end ########################################
