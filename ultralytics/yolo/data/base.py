@@ -283,7 +283,7 @@ class BaseDataset(Dataset):
                             # ----------------------------------------------------rir end------------------------------------------
                             else:
                                 interp = cv2.INTER_LINEAR if (self.augment or r_inf > 1) else cv2.INTER_AREA
-                            im_visible = cv2.resize(im_visible, (
+                            im_infrared = cv2.resize(im_infrared, (
                             min(math.ceil(w_inf * r_inf), self.imgsz), min(math.ceil(h_inf * r_inf), self.imgsz)),
                                                     interpolation=interp)
 
