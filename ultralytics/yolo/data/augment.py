@@ -1019,39 +1019,6 @@ class Albumentations4C:
             labels['instances'].update(bboxes=bboxes)
         return labels
 
-
-def v8_transforms_src(dataset, imgsz, hyp):
-    """Convert images to a size suitable for YOLOv8 training."""
-    pre_transform = Compose([
-        Mosaic(dataset, imgsz=imgsz, p=hyp.mosaic),
-        CopyPaste(p=hyp.copy_paste),
-        RandomPerspective(
-            degrees=hyp.degrees,
-            translate=hyp.translate,
-            scale=hyp.scale,
-            shear=hyp.shear,
-            perspective=hyp.perspective,
-            pre_transform=LetterBox(new_shape=(imgsz, imgsz)),
-        )])
-    flip_idx = dataset.data.get('flip_idx', None)  # for keypoints augmentation
-    if dataset.use_keypoints:
-        kpt_shape = dataset.data.get('kpt_shape', None)
-        if flip_idx is None and hyp.fliplr > 0.0:
-            hyp.fliplr = 0.0
-            LOGGER.warning("WARNING ⚠️ No 'flip_idx' array defined in data.yaml, setting augmentation 'fliplr=0.0'")
-        elif flip_idx and (len(flip_idx) != kpt_shape[0]):
-            raise ValueError(f'data.yaml flip_idx={flip_idx} length must be equal to kpt_shape[0]={kpt_shape[0]}')
-
-    return Compose([
-        pre_transform,
-        MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup),
-        Albumentations(p=1.0),
-        # RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
-        # RandomBrightness(gain=hyp.hsv_v),
-        RandomBrightness(gain=hyp.hsv_v) if hyp.channels==1 else RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
-        RandomFlip(direction='vertical', p=hyp.flipud),
-        RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
-
 def v8_transforms(dataset, imgsz, hyp):
     """Convert images to a size suitable for YOLOv8 training."""
     dtype=np.uint8 if hyp.use_simotm!="Gray16bit" else np.float32
@@ -1099,6 +1066,40 @@ def v8_transforms(dataset, imgsz, hyp):
     #
     #     RandomFlip(direction='vertical', p=hyp.flipud),
     #     RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
+
+
+def v8_transforms_src(dataset, imgsz, hyp):
+    """Convert images to a size suitable for YOLOv8 training."""
+    pre_transform = Compose([
+        Mosaic(dataset, imgsz=imgsz, p=hyp.mosaic),
+        CopyPaste(p=hyp.copy_paste),
+        RandomPerspective(
+            degrees=hyp.degrees,
+            translate=hyp.translate,
+            scale=hyp.scale,
+            shear=hyp.shear,
+            perspective=hyp.perspective,
+            pre_transform=LetterBox(new_shape=(imgsz, imgsz)),
+        )])
+    flip_idx = dataset.data.get('flip_idx', None)  # for keypoints augmentation
+    if dataset.use_keypoints:
+        kpt_shape = dataset.data.get('kpt_shape', None)
+        if flip_idx is None and hyp.fliplr > 0.0:
+            hyp.fliplr = 0.0
+            LOGGER.warning("WARNING ⚠️ No 'flip_idx' array defined in data.yaml, setting augmentation 'fliplr=0.0'")
+        elif flip_idx and (len(flip_idx) != kpt_shape[0]):
+            raise ValueError(f'data.yaml flip_idx={flip_idx} length must be equal to kpt_shape[0]={kpt_shape[0]}')
+
+    return Compose([
+        pre_transform,
+        MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup),
+        Albumentations(p=1.0),
+        # RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
+        # RandomBrightness(gain=hyp.hsv_v),
+        RandomBrightness(gain=hyp.hsv_v) if hyp.channels==1 else RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
+        RandomFlip(direction='vertical', p=hyp.flipud),
+        RandomFlip(direction='horizontal', p=hyp.fliplr, flip_idx=flip_idx)])  # transforms
+
 
 # Classification augmentations -----------------------------------------------------------------------------------------
 def classify_transforms(size=224, mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)):  # IMAGENET_MEAN, IMAGENET_STD

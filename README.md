@@ -108,6 +108,7 @@ parser.add_argument('--channels', type=int, default=3, help='input channels')
 
 ## Chinese Interpretation Link
 - [Chinese Interpretation of YOLO-MIF](Chinese Interpretation Link) [TODO: Will be written and updated later if needed]
+- [Modified YOLOv8 for RGBT multi-channel and single-channel gray image detection  ](https://zhuanlan.zhihu.com/p/716419187)
 
 ## Video Tutorial Link
 - [Video Tutorial and Secondary Innovation Solutions for YOLO-MIF]() [TODO: Detailed tutorial in text-based PPT format]

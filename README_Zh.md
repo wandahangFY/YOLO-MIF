@@ -111,6 +111,8 @@ python train_FLIR_ADAS-16-RepDCHead.py
 
 ## 中文解读链接
 - [YOLO-MIF中文解读](中文解读链接) [TODO: 如有需要，会在后面编写并更新]
+- [修改YOLOv8为RGBT多通道和单通道灰度图像检测](https://zhuanlan.zhihu.com/p/716419187) [TODO: 如有需要，会在后面编写并更新]
+
 
 ## 视频教程链接
 - [YOLO-MIF 视频解读和二次创新方案]() [TODO: 文字版PPT详细教程]
