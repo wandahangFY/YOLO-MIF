@@ -27,7 +27,7 @@ def transformer_opt(opt):
 def parse_opt():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--yaml', type=str, default='ultralytics/models/v8/yolov8n.yaml', help='model.yaml path')
+    parser.add_argument('--yaml', type=str, default='ultralytics/models/v8/yolov8-C2f-MixedDBB-backbone-dbbhead.yaml', help='model.yaml path')
     parser.add_argument('--weight', type=str, default='', help='pretrained model path')
     parser.add_argument('--cfg', type=str, default='hyp.yaml', help='hyperparameters path')
     parser.add_argument('--data', type=str, default='ultralytics/datasets/NEU-DET-3.yaml', help='data yaml path')
@@ -40,7 +40,7 @@ def parse_opt():
     parser.add_argument('--device', type=str, default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--workers', type=int, default=2, help='max dataloader workers (per RANK in DDP mode)')
     parser.add_argument('--project', type=str, default= 'runs/train/RepDCHead/NEU-DET/', help='save to project/name')
-    parser.add_argument('--name', type=str, default='NEU-DET-yolov8n-', help='save to project/name')
+    parser.add_argument('--name', type=str, default='NEU-DET-yolov8-C2f-MixedDBB-backbone-dbbhead.yaml-', help='save to project/name')
     parser.add_argument('--resume', type=str, default='', help='resume training from last checkpoint')
     parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'Adamax', 'NAdam', 'RAdam', 'AdamW', 'RMSProp', 'auto'], default='SGD', help='optimizer (auto -> ultralytics/yolo/engine/trainer.py in build_optimizer funciton.)')
     parser.add_argument('--close_mosaic', type=int, default=0, help='(int) disable mosaic augmentation for final epochs')
