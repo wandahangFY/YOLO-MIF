@@ -72,7 +72,7 @@ class YOLOV8(YOLO):
     yaml:model.yaml path
     weigth:pretrained model path
     '''
-    def __init__(self, yaml='ultralytics/models/v8/yolov8n.yaml', weight='', task=None) -> None:
+    def __init__(self, yaml='ultralytics/models/v8/yolov8n.yaml' , weight='', task=None) -> None:
         super().__init__(yaml, task)
         if weight:
             self.load(weight)
