@@ -23,17 +23,265 @@ Among them, the directory format of 1-4 is consistent with YOLOv8. With train.tx
 
 ![YOLO-MIF-RGBT:](PaperImages/YOLO-MIF-RGBT.jpg)
 
-## Installation
-<details open>
-<summary>Install</summary>
 
-Pip install the ultralytics package including all [requirements](https://github.com/ultralytics/ultralytics/blob/main/requirements.txt) in a [**Python>=3.7**](https://www.python.org/) environment with [**PyTorch>=1.7**](https://pytorch.org/get-started/locally/).
+## Dataset Configuration
 
+### 1. Dataset Structure
+In YOLOv8, the visible light (visible) directory must conform to the dataset configuration principles. Additionally, an infrared (infrared) directory must exist at the same level as the visible light directory. Furthermore, the dataset should be divided into `train` and `val` (optional) subdirectories for training and validation purposes, respectively.
+
+### 2. Configuration Methods
+Below are three recommended configuration methods:
+
+#### Important Notes
+- Ensure that the visible and infrared directories are at the same level.
+- If constructing a YAML file using TXT files, the TXT file paths must include `visible` so that the program can automatically replace it with `infrared`.
+- If you encounter issues, please refer to the `load_image` function in `ultralytics/data/base.py`.
+
+---
+
+#### Method 1: Directory Configuration (KAIST Configuration Example)
+Store visible and infrared data in directories at the same level, with each modality divided into `train` and `val` subdirectories. The directory structure is as follows:
+
+```
+dataset/  # Root directory of the dataset
+├── train/  # Store training data
+│   ├── visible/  # Data related to visible light images
+│   │   ├── images/  # Visible light image files
+│   │   └── labels/  # Label files for visible light images (e.g., annotation information)
+│   └── infrared/  # Data related to infrared images
+│       ├── images/  # Infrared image files
+│       └── labels/  # Label files for infrared images (e.g., annotation information)
+└── val/  # Store validation data
+    ├── visible/  # Data related to visible light images
+    │   ├── images/  # Visible light image files
+    │   └── labels/  # Label files for visible light images (e.g., annotation information)
+    └── infrared/  # Data related to infrared images
+        ├── images/  # Infrared image files
+        └── labels/  # Label files for infrared images (e.g., annotation information)
+
+---------------------------------------------------------------------
+
+# KAIST.yaml
+
+# train and val data as 1) directory: path/images/
+train: dataset/visible/images/train  # 7601 images
+val:  dataset/visible/images/val # 2257 images
+
+# number of classes
+nc: 1
+
+# class names
+names: [ 'person', ]
+
+-----------------------------------------------------------------------
+```
+
+- **train/visible**: Stores visible light images and their labels for the training set.
+- **train/infrared**: Stores infrared images and their labels for the training set.
+- **val/visible**: Stores visible light images and their labels for the validation set.
+- **val/infrared**: Stores infrared images and their labels for the validation set.
+
+The program will automatically recognize visible and infrared data through the directory structure.
+
+#### Method 2: Directory Configuration (Configuration Example)
+Under the second-level directory, store visible and infrared data in directories at the same level, with each modality divided into `train` and `val` subdirectories. The directory structure is as follows:
+
+```
+dataset/
+├── images/
+│   ├── visible/
+│   │   ├── train/  # Store training visible light images
+│   │   └── val/    # Store validation visible light images
+│   └── infrared/
+│       ├── train/  # Store training infrared images
+│       └── val/    # Store validation infrared images
+└── labels/
+    ├── visible/
+    │   ├── train/  # Store training visible light image labels
+    │   └── val/    # Store validation visible light image labels
+    └── infrared/
+        ├── train/  # Store training infrared image labels
+        └── val/    # Store validation infrared image labels
+
+---------------------------------------------------------------------
+
+# KAIST.yaml
+
+# train and val data as 1) directory: path/images/
+train: dataset/images/visible/train  # 7601 images
+val:   dataset/images/visible/val # 2257 images
+
+# number of classes
+nc: 1
+
+# class names
+names: [ 'person', ]
+
+-----------------------------------------------------------------------
+```
+
+- **`images/`**: Stores all image data.
+  - **`visible/`**: Contains visible light images.
+    - **`train/`**: Visible light images for model training.
+    - **`val/`**: Visible light images for model validation.
+  - **`infrared/`**: Contains infrared images.
+    - **`train/`**: Infrared images for model training.
+    - **`val/`**: Infrared images for model validation.
+
+- **`labels/`**: Stores all image label information (e.g., annotation files, comments).
+  - **`visible/`**: Contains labels for visible light images.
+    - **`train/`**: Labels for the training set of visible light images.
+    - **`val/`**: Labels for the validation set of visible light images.
+  - **`infrared/`**: Contains labels for infrared images.
+    - **`train/`**: Labels for the training set of infrared images.
+    - **`val/`**: Labels for the validation set of infrared images.
+
+The program will automatically recognize visible and infrared data through the directory structure.
+
+#### Method 3: TXT File Configuration (VEDAI Configuration Example)
+Use TXT files to specify data paths. The TXT file content should include visible light image paths, and the program will automatically replace them with the corresponding infrared paths. TXT files need to specify the paths for the training and validation sets (default configuration method for YOLOv5, YOLOv8, YOLOv11).
+
+```
+dataset/
+├── images/
+│   ├── visible/    # Store  visible light images
+│   │   ├── image1.jpg  
+│   │   └── image2.jpg
+│   │   └── ...      
+│   └── infrared/  #  Store  visible light images
+│       ├── image1.jpg   
+│       └── image2.jpg  
+│       └── ...         
+└── labels/
+    ├── visible/  # Store  visible light labels
+    │   ├── image1.txt   
+    │   └── image2.txt 
+    └── infrared/  # Store  infrared light labels
+        ├── image1.txt
+        └── image2.txt    
+        
+---------------------------------------------------------------------
+
+# VEDAI.yaml
+
+train:  G:/wan/data/RGBT/VEDAI/VEDAI_train.txt  # 16551 images
+val:  G:/wan/data/RGBT/VEDAI/VEDAI_trainval.txt # 4952 images
+
+# number of classes
+nc: 9
+
+# class names
+names: ['plane', 'boat', 'camping_car', 'car', 'pick-up', 'tractor', 'truck', 'van', 'others']
+
+-----------------------------------------------------------------------
+        
+```
+
+**Example TXT File Content:**
+
+**train.txt**
+```
+dataset/images/visible/image1.jpg
+dataset/images/visible/image2.jpg
+dataset/images/visible/image3.jpg
+```
+
+**val.txt**
+```
+dataset/images/visible/image4.jpg
+dataset/images/visible/image5.jpg
+dataset/images/visible/image6.jpg
+```
+
+The program will replace `visible` with `infrared` in the paths to find the corresponding infrared images.
+
+### 3. Principle Explanation
+In the `load_image` function in `ultralytics/data/base.py`, there is a line of code that replaces `visible` with `infrared` in the visible light path. Therefore, as long as there is an infrared directory at the same level as the visible light directory, the program can correctly load the corresponding infrared data.
+
+
+
+## Quick Start Guide
+
+### 1. Clone the Project
+```bash
+git clone https://github.com/wandahangFY/YOLOv11-RGBT.git 
+cd YOLOv11-RGBT
+```
+
+### 2. Prepare the Dataset
+Configure your dataset directory or TXT file according to one of the three methods mentioned above.
+
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-</details>
+### 4. Run the Program
+```bash
+python train.py --data your_dataset_config.yaml
+```
+#### Explanation of Training Modes
+
+Below are the Python script files for different training modes included in the project, each targeting specific training needs and data types.
+
+4.1. **`train.py`**
+   - Basic training script.
+   - Used for standard training processes, suitable for general image classification or detection tasks.
+
+2. **`train-rtdetr.py`**
+   - Training script for RTDETR (Real-Time Detection Transformer).
+
+3. **`train_Gray.py`**
+   - Grayscale image training script.
+   - Specifically for processing datasets of grayscale images, suitable for tasks requiring image analysis in grayscale space.
+
+4. **`train_RGBRGB.py`**
+   - RGB-RGB image pair training script.
+   - Used for training with two sets of RGB images simultaneously, such as paired training of visible and infrared images, suitable for multimodal image analysis.
+
+5. **`train_RGBT.py`**
+   - RGB-T (RGB-Thermal) image pair training script.
+   - Used for paired training of RGB images and thermal (infrared) images, suitable for applications requiring the combination of visible light and thermal imaging information.
+
+### 5. Testing
+Run the test script to verify if the data loading is correct:
+```bash
+python val.py
+```
+
+---
+
+## Important Notes (Emphasized Again)
+- Ensure that the visible and infrared directories are at the same level, and there are `train` and `val` subdirectories under each modality.
+- TXT file paths must include `visible` so that the program can automatically replace it with `infrared`.
+- If you encounter issues, please refer to the `load_image` function in `ultralytics/data/base.py`.
+
+---
+# Dataset Download Links
+
+Here are the Baidu Netdisk links for the converted VEIAI, LLVIP, KAIST, M3FD datasets (you need to change the addresses in the yaml files. If you use txt files to configure yaml files, you need to replace the addresses in the txt files with your own addresses: open with Notepad, Ctrl+H). (Additionally, if you use the above datasets, please correctly cite the original papers. If there is any infringement, please contact the original authors, and it will be removed immediately.)
+
+- VEIAI (Vehicle Detection in Aerial Imagery (VEDAI) : a benchmark (greyc.fr))
+- LLVIP (bupt-ai-cz/LLVIP: LLVIP: A Visible-infrared Paired Dataset for Low-light Vision (github.com))
+- KAIST
+  - Original address (SoonminHwang/rgbt-ped-detection: KAIST Multispectral Pedestrian Detection Benchmark [CVPR '15] (github.com))
+  - Download of the complete and cleaned KAIST dataset - kongen - CNBlogs (cnblogs.com)
+- M3FD (JinyuanLiu-CV/TarDAL: CVPR 2022 | Target-aware Dual Adversarial Learning and a Multi-scenario Multi-Modality Benchmark to Fuse Infrared and Visible for Object Detection (github.com))
+
+Baidu Netdisk Link:
+Link: https://pan.baidu.com/s/1xOUP6UTQMXwgErMASPLj2A Extraction Code: 9rrf
+
+
+## Contributions
+PRs or Issues are welcome to jointly improve the project. This project is a long-term open-source project and will continue to be updated for free in the future, so there is no need to worry about cost issues.
+
+## Contact Information
+- GitHub: [https://github.com/wandahangFY](https://github.com/wandahangFY)
+- Email: wandahang@foxmail.com
+- QQ: 1753205688
+- QQ Group: 483264141
+
+![QQ Group](PaperImages/QQ.png)
 
 
 <details open>
