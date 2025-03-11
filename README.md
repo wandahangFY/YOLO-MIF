@@ -12,11 +12,12 @@ This paper proposes an enhanced object detection network, YOLO-MIF, for addressi
 4. GIS: Input strategy for gray-scale images
 
 ## Supported image formats:
-1. uint8: 'Gray'  Single-channel 8-bit gray-scale image.
-2. uint16: 'Gray16bit' Single-channel 16-bit gray-scale image.
-3. uint8: 'SimOTM' 'SimOTMBBS'   Single-channel 8-bit gray-scale image TO Three-channel 8-bit gray-scale image.
-4. uint8: 'BGR'  Three-channel 8-bit color image.
-5. unit8: 'RGBT' Four-channel 8-bit color image.(Including early fusion, middle fusion, late fusion, score fusion, weight sharing mode)
+1. uint8: 'Gray'  Single-channel 8-bit gray-scale image.  channels=1 ,  yaml   ch: 1 
+2. uint16: 'Gray16bit' Single-channel 16-bit gray-scale image.  channels=1 ,  yaml   ch: 1 
+3. uint8: 'SimOTM' 'SimOTMBBS'   Single-channel 8-bit gray-scale image TO Three-channel 8-bit gray-scale image.  channels=3 ,  yaml   ch: 3 
+4. uint8: 'BGR'  Three-channel 8-bit color image.  channels=3 ,  yaml   ch: 3 
+5. unit8: 'RGBT' Four-channel 8-bit color image.(Including early fusion, middle fusion, late fusion, score fusion, weight sharing mode)  channels=4 ,  yaml   ch: 4 
+6. unit8: 'RGBRGB6C' Six-channel 8-bit color image.(Including early fusion, middle fusion, late fusion, score fusion, weight sharing mode) channels=6 ,  yaml   ch: 6 
 
 Among them, the directory format of 1-4 is consistent with YOLOv8. With train.txt and val.txt, all you need to do is write the image address below visible, and the data format directory of 'RGBT' is as follows:
 ![img.png](img.png)

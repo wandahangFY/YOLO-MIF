@@ -13,11 +13,12 @@
 4. GIS：针对灰度图像的输入策略
 
 ## 支持图像格式：
-1. uint8: 'Gray' 单通道8位灰度图像。
-2. uint16: 'Gray16bit' 单通道16位灰度图像。
-3. uint8: 'SimOTM' 'SimOTMBBS' 单通道8位灰度图像转换为三通道8位灰度图像。
-4. uint8: 'BGR' 三通道8位彩色图像。
-5. unit8: 'RGBT' 四通道8位多光谱图像。(包括前期融合，中期融合，后期融合，分数融合，权重共享模式)
+1. uint8: 'Gray' 单通道8位灰度图像。   channels=1 ,  yaml   ch: 1 
+2. uint16: 'Gray16bit' 单通道16位灰度图像。 channels=1 ,  yaml   ch: 1 
+3. uint8: 'SimOTM' 'SimOTMBBS' 单通道8位灰度图像转换为三通道8位灰度图像。 channels=3 ,  yaml   ch: 3 
+4. uint8: 'BGR' 三通道8位彩色图像。 channels=3 ,  yaml   ch: 3 
+5. unit8: 'RGBT' 四通道8位多光谱图像。(包括前期融合，中期融合，后期融合，分数融合，权重共享模式) channels=4 ,  yaml   ch: 4 
+6. unit8: 'RGBRGB6C' 六通道8位多光谱图像。(包括前期融合，中期融合，后期融合，分数融合，权重共享模式) channels=6 ,  yaml   ch: 6 
 
 
 其中，1-4的目录格式与YOLOv8保持一致，'RGBT'的数据格式目录如下，如果采用train.txt和val.txt，则只需要写visible下面的图片地址即可：
